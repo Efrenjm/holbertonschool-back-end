@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+"""Returns to-do list for user with user ID"""
 import requests
 import sys
 
