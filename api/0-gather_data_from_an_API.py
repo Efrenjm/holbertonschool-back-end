@@ -4,10 +4,12 @@ import sys
 
 if __name__ == "__main__":
     url = "https://jsonplaceholder.typicode.com/"
+    userId = sys.argv[1]
+
     params = {
-        "userId": sys.argv[1]
+        "userId": userId
     }
-    user = requests.get(f"{url}users/", params=params).json()
+    user = requests.get(f"{url}users/{userId}").json()
     todos = requests.get(f"{url}todos/", params=params).json()
 
     completed = []
@@ -15,6 +17,6 @@ if __name__ == "__main__":
         if todo.get("completed"):
             completed.append(todo.get("title"))
 
-    print(f"Employee {user.get("name")} is done with tasks({len(completed)}/{len(todos)}):")
+    print(f"Employee {user.get('name')} is done with tasks({len(completed)}/{len(todos)}):")
     for task in completed:
-        print("\ttask")
+        print(f"\t{task}")
