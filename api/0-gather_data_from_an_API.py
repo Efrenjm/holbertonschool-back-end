@@ -1,31 +1,31 @@
 #!/usr/bin/python3
-"""Return information about employee TO DO list progress"""
+"""Write a Python script that, using this REST API, for a given
+employee ID, returns information about his/her todo list progress"""
 
-
-import requests
-from sys import argv
 
 if __name__ == "__main__":
 
-    # Get user name related to id
-    user_api_url = "https://jsonplaceholder.typicode.com/users/{}".format(
-        argv[1])
-    user = requests.get(user_api_url)
-    employee_name = user.json().get('name')
+    import requests
+    from sys import argv
 
-    # Get tasks from user
-    tasks_url = "https://jsonplaceholder.typicode.com/users/{}/todos/".format(
-        argv[1])
-    todos = requests.get(tasks_url)
-    todos_tasks = todos.json()
-    total_tasks = len(todos_tasks)
+    todos = requests.get("https://jsonplaceholder.typicode.com/users/{}/todos"
+                         .format(argv[1]))
+    data_user = requests.get("https://jsonplaceholder.typicode.com/users/{}"
+                             .format(argv[1]))
 
-    # Get and append task title for done task in todos_tasks
-    titles = [item.get('title') for item in todos_tasks if
-              item.get("completed") is True]
-    done_tasks = len(titles)
+    task_done = 0
+    all_tasks = 0
+    task_done_list = []
 
-    print("Employee {} is done with tasks({}/{}):".format(
-        employee_name, done_tasks, total_tasks))
-    for _ in titles:
-        print("\t {}".format(_))
+    for task in todos.json():
+        all_tasks += 1
+        if task['completed'] is True:
+            task_done += 1
+            task_done_list.append(task['title'])
+
+    employee_name = data_user.json()['name']
+    print("Employee {} is done with tasks({}/{}):"
+          .format(employee_name, task_done, all_tasks))
+
+    for task in task_done_list:
+        print("\t {}".format(task))
