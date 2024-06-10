@@ -1,34 +1,31 @@
 #!/usr/bin/python3
-"""Script to use a REST API for a given employee ID, returns
-information about his/her TODO list progress"""
-import requests
-import sys
+"""Export data from employees information to CSV file"""
 
+import csv
+import requests
+from sys import argv
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"UsageError: python3 {__file__} employee_id(int)")
-        sys.exit(1)
 
-    API_URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = sys.argv[1]
+    # Get user name related to id
+    user_api_url = "https://jsonplaceholder.typicode.com/users/{}".format(
+        argv[1])
+    user = requests.get(user_api_url)
+    employee_name = user.json().get('username')
+    id = user.json().get('id')
 
-    response = requests.get(
-        f"{API_URL}/users/{EMPLOYEE_ID}/todos",
-        params={"_expand": "user"}
-    )
-    data = response.json()
+    # Get tasks from user
+    tasks_url = "https://jsonplaceholder.typicode.com/users/{}/todos/".format(
+        argv[1])
+    todos = requests.get(tasks_url)
+    todos_tasks = todos.json()
 
-    if not len(data):
-        print("RequestError:", 404)
-        sys.exit(1)
-
-    employee_name = data[0]["user"]["name"]
-    total_tasks = len(data)
-    done_tasks = [task for task in data if task["completed"]]
-    total_done_tasks = len(done_tasks)
-
-    print(f"Employee {employee_name} is done with tasks"
-          f"({total_done_tasks}/{total_tasks}):")
-    for task in done_tasks:
-        print(f"\t {task['title']}")
+    # Export data to a csv file
+    csv_file = "{}.csv".format(argv[1])
+    with open(csv_file, "w") as csv_obj:
+        csv_writer = csv.writer(csv_obj, delimiter=",", quotechar='"',
+                                quoting=csv.QUOTE_ALL)
+        for item in todos_tasks:
+            csv_writer.writerow([argv[1], employee_name,
+                                item.get('completed'), item.get('title')])
+    csv_obj.close()
